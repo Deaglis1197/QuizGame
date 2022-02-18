@@ -16,7 +16,7 @@ public class Quiz : MonoBehaviour
     [Header("Answers")]
     [SerializeField] GameObject[] answerButtons;
     int correctAnswerIndex;
-    bool hasAnsweredEarly;
+    bool hasAnsweredEarly=true;
 
     [Header("Button Colors")]
     [SerializeField] Sprite defaultAnswerSprite;
@@ -29,37 +29,45 @@ public class Quiz : MonoBehaviour
     [Header("Scoring")]
     [SerializeField] TextMeshProUGUI scoreText;
     ScoreKeeper scoreKeeper;
-    
+
     [Header("ProgressBar")]
     [SerializeField] Slider progressBar;
     public bool isComplete;
-    void Start()
+    void Awake()
     {
         timer = FindObjectOfType<Timer>();
-        scoreKeeper=FindObjectOfType<ScoreKeeper>();
-        progressBar.maxValue=questions.Count;
-        progressBar.value=0;
+        scoreKeeper = FindObjectOfType<ScoreKeeper>();
+        progressBar.maxValue = questions.Count;
+        progressBar.value = 0;
     }
     void Update()
     {
+        
         timerImage.fillAmount = timer.fillFraction;
         if (timer.loadNextQuestion)
         {
-            
+            if (progressBar.value == progressBar.maxValue)
+            {
+                isComplete = true;
+                return;
+            }
+
             hasAnsweredEarly = false;
             GetNextQuestion();
             timer.loadNextQuestion = false;
         }
         else if (!hasAnsweredEarly && !timer.isAnsweringQuestion)
         {
+            
             DisplayAnswer(-1);
             SetButtonState(false);
         }
+       
     }
     void DisplayAnswer(int index)
     {
 
-        
+
         if (index == currentQuestion.GetCorrectAnswerIndex()) //Correct Answer
         {
             questionText.text = "Correct!";
@@ -107,10 +115,7 @@ public class Quiz : MonoBehaviour
         SetButtonState(false);
         timer.CancelTimer();
         scoreText.text = "Score: %" + scoreKeeper.CalculateScore();
-        if(progressBar.value==progressBar.maxValue)
-        {
-            isComplete=true;
-        }
+
     }
     void GetNextQuestion()
     {
